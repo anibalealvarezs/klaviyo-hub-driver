@@ -13,9 +13,17 @@
         "anibalealvarezs/api-client-skeleton": "dev-main",
         "anibalealvarezs/klaviyo-api": "dev-main"
     },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://satis.anibalalvarez.com/"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Anibalealvarezs\\KlaviyoHubDriver\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": false
 }
