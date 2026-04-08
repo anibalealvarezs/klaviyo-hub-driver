@@ -76,13 +76,13 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:anibalealvarezs/klaviyo-api.git",
-                "reference": "2d645092557b6895a4b5c61efb2db458c89333fb"
+                "reference": "381748568c2839e8223ba08c310309bc7dd26f80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/klaviyo-api/anibalealvarezs-klaviyo-api-2d645092557b6895a4b5c61efb2db458c89333fb-zip-66eb6a.zip",
-                "reference": "2d645092557b6895a4b5c61efb2db458c89333fb",
-                "shasum": "78609cb27ee8fe006bab1e1e76e7056fe5705a93"
+                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/klaviyo-api/anibalealvarezs-klaviyo-api-381748568c2839e8223ba08c310309bc7dd26f80-zip-1a33b4.zip",
+                "reference": "381748568c2839e8223ba08c310309bc7dd26f80",
+                "shasum": "7aad9b51a252412f496df86523230f22674a6bbe"
             },
             "require": {
                 "anibalealvarezs/api-client-skeleton": "@dev",
@@ -118,7 +118,7 @@
                 }
             ],
             "description": "description",
-            "time": "2026-04-08T22:40:27+00:00"
+            "time": "2026-04-08T23:22:51+00:00"
         },
         {
             "name": "anibalealvarezs/oauth-v1",
