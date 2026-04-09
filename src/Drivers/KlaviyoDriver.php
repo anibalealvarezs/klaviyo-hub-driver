@@ -29,6 +29,11 @@ class KlaviyoDriver implements SyncDriverInterface
         $this->authProvider = $provider;
     }
 
+    public function getAuthProvider(): ?AuthProviderInterface
+    {
+        return $this->authProvider;
+    }
+
     public function setDataProcessor(callable $processor): void
     {
         $this->dataProcessor = $processor;
