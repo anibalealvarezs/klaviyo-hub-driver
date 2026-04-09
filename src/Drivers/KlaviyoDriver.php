@@ -187,4 +187,9 @@ class KlaviyoDriver implements SyncDriverInterface
             }
         );
     }
+
+    public function getApi(array $config = []): KlaviyoApi
+    {
+        return new KlaviyoApi($this->authProvider->getAccessToken());
+    }
 }
