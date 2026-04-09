@@ -4,6 +4,7 @@ namespace Anibalealvarezs\KlaviyoHubDriver\Drivers;
 
 use Anibalealvarezs\ApiSkeleton\Interfaces\SyncDriverInterface;
 use Anibalealvarezs\ApiSkeleton\Interfaces\AuthProviderInterface;
+use Anibalealvarezs\ApiSkeleton\Traits\HasUpdatableCredentials;
 use Anibalealvarezs\KlaviyoApi\KlaviyoApi;
 use Anibalealvarezs\KlaviyoApi\Enums\AggregatedMeasurement;
 use Anibalealvarezs\KlaviyoApi\Conversions\KlaviyoConvert;
@@ -14,6 +15,8 @@ use Exception;
 
 class KlaviyoDriver implements SyncDriverInterface
 {
+    use HasUpdatableCredentials;
+
     private ?AuthProviderInterface $authProvider = null;
     private ?LoggerInterface $logger = null;
     /** @var callable|null */
@@ -192,4 +195,8 @@ class KlaviyoDriver implements SyncDriverInterface
     {
         return new KlaviyoApi($this->authProvider->getAccessToken());
     }
+
+    public array $updatableCredentials = [
+        'KLAVIYO_API_KEY'
+    ];
 }
