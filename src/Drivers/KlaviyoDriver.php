@@ -191,9 +191,36 @@ class KlaviyoDriver implements SyncDriverInterface
         );
     }
 
-    public function getApi(array $config = []): KlaviyoApi
+    public function getApi(array $config = []): mixed
     {
-        return new KlaviyoApi($this->authProvider->getAccessToken());
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getConfigSchema(): array
+    {
+        return [
+            'global' => [
+                'enabled' => true,
+                'cache_history_range' => '1 year',
+                'cache_aggregations' => false,
+            ],
+            'entity' => [
+                'id' => '',
+                'name' => '',
+                'enabled' => true,
+            ]
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function validateConfig(array $config): array
+    {
+        return $config;
     }
 
     public array $updatableCredentials = [
