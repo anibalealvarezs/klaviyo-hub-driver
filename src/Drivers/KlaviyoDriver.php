@@ -6,6 +6,7 @@ use Anibalealvarezs\ApiSkeleton\Interfaces\SyncDriverInterface;
 use Anibalealvarezs\ApiSkeleton\Interfaces\AuthProviderInterface;
 use Anibalealvarezs\KlaviyoApi\KlaviyoApi;
 use Anibalealvarezs\KlaviyoApi\Enums\AggregatedMeasurement;
+use Anibalealvarezs\KlaviyoApi\Conversions\KlaviyoConvert;
 use Symfony\Component\HttpFoundation\Response;
 use Psr\Log\LoggerInterface;
 use DateTime;
@@ -59,18 +60,26 @@ class KlaviyoDriver implements SyncDriverInterface
         }
 
         try {
-            $api = new KlaviyoApi(
-                apiKey: $this->authProvider->getAccessToken()
-            );
+            $api = new KlaviyoApi($this->authProvider->getAccessToken());
 
-            $type = $config['type'] ?? 'metrics';
+            $type = $config['type'] ?? 'all';
 
-            return match ($type) {
-                'metrics' => $this->syncMetrics($api, $startDate, $endDate, $config),
-                'customers' => $this->syncCustomers($api, $startDate, $endDate, $config),
-                'products' => $this->syncProducts($api, $config),
-                default => throw new Exception("Unsupported entity type for Klaviyo: {$type}"),
-            };
+            // 1. Sync Metrics (Aggregates)
+            if ($type === 'all' || $type === 'metrics') {
+                $this->syncMetrics($api, $startDate, $endDate, $config);
+            }
+
+            // 2. Sync Customers (Profiles)
+            if ($type === 'all' || $type === 'customers') {
+                $this->syncCustomers($api, $startDate, $endDate, $config);
+            }
+
+            // 3. Sync Products (Catalog Items)
+            if ($type === 'all' || $type === 'products') {
+                $this->syncProducts($api, $config);
+            }
+
+            return new Response(json_encode(['status' => 'success', 'message' => "Klaviyo sync [{$type}] completed"]));
 
         } catch (Exception $e) {
             if ($this->logger) {
@@ -80,23 +89,19 @@ class KlaviyoDriver implements SyncDriverInterface
         }
     }
 
-    private function syncMetrics(KlaviyoApi $api, DateTime $startDate, DateTime $endDate, array $config): Response
+    private function syncMetrics(KlaviyoApi $api, DateTime $startDate, DateTime $endDate, array $config): void
     {
-        $metricNames = $config['metricNames'] ?? ($config['klaviyo']['metrics'] ?? []);
-        $metricIds = [];
-        $metricMap = [];
+        if ($this->logger) {
+            $this->logger->info("Syncing Klaviyo Metrics Aggregates...");
+        }
 
-        $api->getAllMetricsAndProcess(
-            metricFields: ['id', 'name'],
-            callback: function ($metrics) use (&$metricIds, &$metricMap, $metricNames) {
-                foreach ($metrics as $metric) {
-                    if (empty($metricNames) || in_array($metric['attributes']['name'], $metricNames)) {
-                        $metricIds[] = $metric['id'];
-                        $metricMap[$metric['id']] = $metric['attributes']['name'];
-                    }
-                }
-            }
-        );
+        $metricIds = $config['metrics'] ?? [];
+        if (empty($metricIds)) {
+            $metricMap = $api->getMetricsMap();
+            $metricIds = array_keys($metricMap);
+        } else {
+            $metricMap = $config['metricMap'] ?? [];
+        }
 
         $formattedFilters = [
             ["operator" => "greater-than", "field" => "datetime", "value" => $startDate->format('Y-m-d H:i:s')],
@@ -112,23 +117,20 @@ class KlaviyoDriver implements SyncDriverInterface
                 measurements: [AggregatedMeasurement::count],
                 filter: $formattedFilters,
                 sortField: 'datetime',
-                callback: function ($aggregates) use ($metricId, $metricMap, $config) {
-                    // Delegate processing to the host
-                    ($this->dataProcessor)(
-                        data: $aggregates,
-                        type: 'metrics',
-                        metricId: $metricId,
-                        metricMap: $metricMap,
-                        config: $config
-                    );
+                callback: function ($aggregates) use ($metricId, $metricMap) {
+                    // Convert raw data into metrics using the SDK
+                    $collection = KlaviyoConvert::metricAggregates($aggregates, (string)$metricId, $metricMap);
+                    
+                    // Persist converted collection in the host
+                    if ($this->dataProcessor && $collection->count() > 0) {
+                        ($this->dataProcessor)($collection, $this->logger);
+                    }
                 }
             );
         }
-
-        return new Response(json_encode(['status' => 'success', 'message' => 'Klaviyo metrics sync completed']));
     }
 
-    private function syncCustomers(KlaviyoApi $api, DateTime $startDate, DateTime $endDate, array $config): Response
+    private function syncCustomers(KlaviyoApi $api, DateTime $startDate, DateTime $endDate, array $config): void
     {
         if ($this->logger) {
             $this->logger->info("Syncing Klaviyo Customers...");
@@ -142,20 +144,19 @@ class KlaviyoDriver implements SyncDriverInterface
                 ["operator" => "less-than", "field" => "created", "value" => $endDate->format('Y-m-d H:i:s')],
             ],
             sortField: 'created',
-            callback: function ($customers) use ($config) {
-                // Delegate processing to the host
-                ($this->dataProcessor)(
-                    data: $customers,
-                    type: 'customers',
-                    config: $config
-                );
+            callback: function ($customers) {
+                // Convert raw data into metrics/entities using the SDK
+                $collection = KlaviyoConvert::customers($customers);
+                
+                // Persist converted collection in the host
+                if ($this->dataProcessor && $collection->count() > 0) {
+                    ($this->dataProcessor)($collection, $this->logger);
+                }
             }
         );
-
-        return new Response(json_encode(['status' => 'success', 'message' => 'Klaviyo customers sync completed']));
     }
 
-    private function syncProducts(KlaviyoApi $api, array $config): Response
+    private function syncProducts(KlaviyoApi $api, array $config): void
     {
         if ($this->logger) {
             $this->logger->info("Syncing Klaviyo Products...");
@@ -175,16 +176,15 @@ class KlaviyoDriver implements SyncDriverInterface
         $api->getAllCatalogItemsAndProcess(
             catalogItemsFields: $config['fields'] ?? null,
             filter: $formattedFilters,
-            callback: function ($products) use ($config) {
-                // Delegate processing to the host
-                ($this->dataProcessor)(
-                    data: $products,
-                    type: 'products',
-                    config: $config
-                );
+            callback: function ($products) {
+                // Convert raw data into metrics/entities using the SDK
+                $collection = KlaviyoConvert::products($products);
+                
+                // Persist converted collection in the host
+                if ($this->dataProcessor && $collection->count() > 0) {
+                    ($this->dataProcessor)($collection, $this->logger);
+                }
             }
         );
-
-        return new Response(json_encode(['status' => 'success', 'message' => 'Klaviyo products sync completed']));
     }
 }
