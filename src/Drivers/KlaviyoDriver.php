@@ -7,7 +7,7 @@ use Anibalealvarezs\ApiDriverCore\Interfaces\AuthProviderInterface;
 use Anibalealvarezs\ApiDriverCore\Traits\HasUpdatableCredentials;
 use Anibalealvarezs\KlaviyoApi\KlaviyoApi;
 use Anibalealvarezs\KlaviyoApi\Enums\AggregatedMeasurement;
-use Anibalealvarezs\KlaviyoApi\Conversions\KlaviyoConvert;
+use Anibalealvarezs\KlaviyoHubDriver\Conversions\KlaviyoConvert;
 use Symfony\Component\HttpFoundation\Response;
 use Psr\Log\LoggerInterface;
 use DateTime;
