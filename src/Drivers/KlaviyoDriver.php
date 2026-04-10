@@ -48,6 +48,16 @@ class KlaviyoDriver implements SyncDriverInterface
         return 'Klaviyo';
     }
 
+    /**
+     * Get the routes served by this driver.
+     * 
+     * @return array
+     */
+    public static function getRoutes(): array
+    {
+        return [];
+    }
+
     public static function getCommonConfigKey(): ?string
     {
         return null;
