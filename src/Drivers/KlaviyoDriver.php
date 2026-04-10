@@ -3,8 +3,8 @@
 namespace Anibalealvarezs\KlaviyoHubDriver\Drivers;
 
 use Anibalealvarezs\ApiDriverCore\Interfaces\SyncDriverInterface;
-use Anibalealvarezs\ApiSkeleton\Interfaces\AuthProviderInterface;
-use Anibalealvarezs\ApiSkeleton\Traits\HasUpdatableCredentials;
+use Anibalealvarezs\ApiDriverCore\Interfaces\AuthProviderInterface;
+use Anibalealvarezs\ApiDriverCore\Traits\HasUpdatableCredentials;
 use Anibalealvarezs\KlaviyoApi\KlaviyoApi;
 use Anibalealvarezs\KlaviyoApi\Enums\AggregatedMeasurement;
 use Anibalealvarezs\KlaviyoHubDriver\Conversions\KlaviyoConvert;
@@ -56,6 +56,26 @@ class KlaviyoDriver implements SyncDriverInterface
     public static function getRoutes(): array
     {
         return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fetchAvailableAssets(): array
+    {
+        return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function validateAuthentication(): array
+    {
+        return [
+            'success' => true,
+            'message' => 'Status unknown for this driver.',
+            'details' => []
+        ];
     }
 
     public static function getCommonConfigKey(): ?string
@@ -297,6 +317,37 @@ class KlaviyoDriver implements SyncDriverInterface
                 'url_id_regex' => null
             ]
         ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function initializeEntities(mixed $entityManager, array $config = []): array
+    {
+        return ['initialized' => 0, 'skipped' => 0];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function reset(mixed $entityManager, string $mode = 'all', array $config = []): array
+    {
+        if (!$entityManager instanceof \Doctrine\ORM\EntityManagerInterface) {
+            throw new \Exception("EntityManagerInterface required for KlaviyoDriver reset.");
+        }
+
+        $resetter = new \Anibalealvarezs\KlaviyoHubDriver\Services\KlaviyoResetService($entityManager);
+        return $resetter->reset($this->getChannel(), $mode);
+    }
+
+    public function updateConfiguration(array $newData, array $currentConfig): array
+    {
+        return $currentConfig;
+    }
+
+    public function prepareUiConfig(array $channelConfig): array
+    {
+        return [];
     }
 }
 
