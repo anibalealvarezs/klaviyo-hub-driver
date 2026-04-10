@@ -235,4 +235,8 @@ class KlaviyoDriver implements SyncDriverInterface
     public array $updatableCredentials = [
         'KLAVIYO_API_KEY'
     ];
+    public function boot(): void
+    {
+    }
 }
+
