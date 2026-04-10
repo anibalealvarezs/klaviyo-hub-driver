@@ -11,6 +11,7 @@
     "require": {
         "php": ">=8.1",
         "anibalealvarezs/api-client-skeleton": "dev-main",
+        "anibalealvarezs/api-driver-core": "dev-main",
         "anibalealvarezs/klaviyo-api": "dev-main",
         "psr/log": "^3.0",
         "symfony/http-foundation": "^6.0"

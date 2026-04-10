@@ -2,9 +2,9 @@
 
 namespace Anibalealvarezs\KlaviyoHubDriver\Drivers;
 
-use Anibalealvarezs\ApiSkeleton\Interfaces\SyncDriverInterface;
-use Anibalealvarezs\ApiSkeleton\Interfaces\AuthProviderInterface;
-use Anibalealvarezs\ApiSkeleton\Traits\HasUpdatableCredentials;
+use Anibalealvarezs\ApiDriverCore\Interfaces\SyncDriverInterface;
+use Anibalealvarezs\ApiDriverCore\Interfaces\AuthProviderInterface;
+use Anibalealvarezs\ApiDriverCore\Traits\HasUpdatableCredentials;
 use Anibalealvarezs\KlaviyoApi\KlaviyoApi;
 use Anibalealvarezs\KlaviyoApi\Enums\AggregatedMeasurement;
 use Anibalealvarezs\KlaviyoApi\Conversions\KlaviyoConvert;
@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Psr\Log\LoggerInterface;
 use DateTime;
 use Exception;
-use Anibalealvarezs\ApiSkeleton\Interfaces\SeederInterface;
+use Anibalealvarezs\ApiDriverCore\Interfaces\SeederInterface;
 
 class KlaviyoDriver implements SyncDriverInterface
 {
@@ -237,6 +237,20 @@ class KlaviyoDriver implements SyncDriverInterface
     ];
     public function boot(): void
     {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getAssetPatterns(): array
+    {
+        return [
+            'klaviyo_account' => [
+                'prefix' => 'kv:account',
+                'hostnames' => ['klaviyo.com'],
+                'url_id_regex' => null
+            ]
+        ];
     }
 }
 
