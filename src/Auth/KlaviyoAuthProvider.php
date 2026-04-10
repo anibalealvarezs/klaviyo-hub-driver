@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Anibalealvarezs\KlaviyoHubDriver\Auth;
 
-use Anibalealvarezs\ApiDriverCore\Auth\BaseAuthProvider;
+use Anibalealvarezs\ApiSkeleton\Auth\BaseAuthProvider;
 
 class KlaviyoAuthProvider extends BaseAuthProvider
 {

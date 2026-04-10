@@ -3,8 +3,8 @@
 namespace Anibalealvarezs\KlaviyoHubDriver\Drivers;
 
 use Anibalealvarezs\ApiDriverCore\Interfaces\SyncDriverInterface;
-use Anibalealvarezs\ApiDriverCore\Interfaces\AuthProviderInterface;
-use Anibalealvarezs\ApiDriverCore\Traits\HasUpdatableCredentials;
+use Anibalealvarezs\ApiSkeleton\Interfaces\AuthProviderInterface;
+use Anibalealvarezs\ApiSkeleton\Traits\HasUpdatableCredentials;
 use Anibalealvarezs\KlaviyoApi\KlaviyoApi;
 use Anibalealvarezs\KlaviyoApi\Enums\AggregatedMeasurement;
 use Anibalealvarezs\KlaviyoHubDriver\Conversions\KlaviyoConvert;
