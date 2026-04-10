@@ -28,6 +28,16 @@ class KlaviyoDriver implements SyncDriverInterface
         // No implementation needed for this driver
     }
 
+    /**
+     * Get the public resources exposed by this driver.
+     * 
+     * @return array
+     */
+    public static function getPublicResources(): array
+    {
+        return [];
+    }
+
     public static function getCommonConfigKey(): ?string
     {
         return null;
