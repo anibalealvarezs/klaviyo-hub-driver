@@ -49,6 +49,16 @@ class KlaviyoDriver implements SyncDriverInterface
     }
 
     /**
+     * Get the display icon for the channel.
+     * 
+     * @return string
+     */
+    public static function getChannelIcon(): string
+    {
+        return 'K';
+    }
+
+    /**
      * Get the routes served by this driver.
      * 
      * @return array
