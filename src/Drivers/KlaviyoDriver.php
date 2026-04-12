@@ -159,6 +159,16 @@ class KlaviyoDriver implements SyncDriverInterface
                 $this->syncProducts($api, $config);
             }
 
+            // 4. Sync Product Categories (Catalog Categories)
+            if ($type === 'all' || $type === 'product_categories') {
+                $this->syncProductCategories($api, $config);
+            }
+
+            // 5. Sync Product Variants (Catalog Variants)
+            if ($type === 'all' || $type === 'product_variants') {
+                $this->syncProductVariants($api, $config);
+            }
+
             return new Response(json_encode(['status' => 'success', 'message' => "Klaviyo sync [{$type}] completed"]));
 
         } catch (Exception $e) {
@@ -268,6 +278,70 @@ class KlaviyoDriver implements SyncDriverInterface
         );
     }
 
+    private function syncProductCategories(KlaviyoApi $api, array $config): void
+    {
+        if ($this->logger) {
+            $this->logger->info("Syncing Klaviyo Product Categories...");
+        }
+
+        $formattedFilters = [];
+        if (isset($config['filters'])) {
+            foreach ($config['filters'] as $key => $value) {
+                $formattedFilters[] = [
+                    "operator" => 'equals',
+                    "field" => $key,
+                    "value" => $value,
+                ];
+            }
+        }
+
+        $api->getAllCatalogCategoriesAndProcess(
+            catalogCategoriesFields: $config['fields'] ?? null,
+            filter: $formattedFilters,
+            callback: function ($categories) {
+                // Convert raw data into metrics/entities using the SDK
+                $collection = KlaviyoConvert::productCategories($categories);
+                
+                // Persist converted collection in the host
+                if ($this->dataProcessor && $collection->count() > 0) {
+                    ($this->dataProcessor)($collection, $this->logger);
+                }
+            }
+        );
+    }
+
+    private function syncProductVariants(KlaviyoApi $api, array $config): void
+    {
+        if ($this->logger) {
+            $this->logger->info("Syncing Klaviyo Product Variants...");
+        }
+
+        $formattedFilters = [];
+        if (isset($config['filters'])) {
+            foreach ($config['filters'] as $key => $value) {
+                $formattedFilters[] = [
+                    "operator" => 'equals',
+                    "field" => $key,
+                    "value" => $value,
+                ];
+            }
+        }
+
+        $api->getAllCatalogVariantsAndProcess(
+            catalogVariantsFields: $config['fields'] ?? null,
+            filter: $formattedFilters,
+            callback: function ($variants) {
+                // Convert raw data into metrics/entities using the SDK
+                $collection = KlaviyoConvert::productVariants($variants);
+                
+                // Persist converted collection in the host
+                if ($this->dataProcessor && $collection->count() > 0) {
+                    ($this->dataProcessor)($collection, $this->logger);
+                }
+            }
+        );
+    }
+
     public function getApi(array $config = []): mixed
     {
         return null;
@@ -332,6 +406,34 @@ class KlaviyoDriver implements SyncDriverInterface
     /**
      * @inheritdoc
      */
+    public static function getPageTypes(): array
+    {
+        return [
+            'klaviyo_account' => 'Klaviyo Account'
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getAccountTypes(): array
+    {
+        return [
+            'klaviyo_account' => 'Klaviyo Account'
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function getEntityPaths(): array
+    {
+        return [];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function initializeEntities(mixed $entityManager, array $config = []): array
     {
         return ['initialized' => 0, 'skipped' => 0];
@@ -358,6 +460,16 @@ class KlaviyoDriver implements SyncDriverInterface
     public function prepareUiConfig(array $channelConfig): array
     {
         return [];
+    }
+    /**
+     * @inheritdoc
+     */
+    public function getDateFilterMapping(): array
+    {
+        return [
+            'start' => 'createdAtMin',
+            'end' => 'createdAtMax'
+        ];
     }
 }
 

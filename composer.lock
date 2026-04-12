@@ -75,13 +75,13 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:anibalealvarezs/api-driver-core.git",
-                "reference": "e9f71b5b186732c6a05a1dc696f10e5bcea3b5f1"
+                "reference": "7065448224e4b8a449d7b2e9fdab5d0f36cad50d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/api-driver-core/anibalealvarezs-api-driver-core-e9f71b5b186732c6a05a1dc696f10e5bcea3b5f1-zip-6f021a.zip",
-                "reference": "e9f71b5b186732c6a05a1dc696f10e5bcea3b5f1",
-                "shasum": "4ad8c8c91996ffba30fa8f744d406fe4e4f47066"
+                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/api-driver-core/anibalealvarezs-api-driver-core-7065448224e4b8a449d7b2e9fdab5d0f36cad50d-zip-2366c2.zip",
+                "reference": "7065448224e4b8a449d7b2e9fdab5d0f36cad50d",
+                "shasum": "56dfa7437c51d37d7bf61739f9f30ac36d191cbc"
             },
             "require": {
                 "anibalealvarezs/api-client-skeleton": "dev-main",
@@ -111,7 +111,7 @@
                 }
             ],
             "description": "Core interfaces and orchestration logic for APIs Hub drivers.",
-            "time": "2026-04-11T22:28:13+00:00"
+            "time": "2026-04-12T01:13:01+00:00"
         },
         {
             "name": "anibalealvarezs/klaviyo-api",
@@ -119,13 +119,13 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:anibalealvarezs/klaviyo-api.git",
-                "reference": "50658aea15941b242394edbfbbe552977133e687"
+                "reference": "84f561646d7092c7422483e0e816268c3fe7e75f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/klaviyo-api/anibalealvarezs-klaviyo-api-50658aea15941b242394edbfbbe552977133e687-zip-8fa36a.zip",
-                "reference": "50658aea15941b242394edbfbbe552977133e687",
-                "shasum": "8aea1af871affb55c63a6ff70a008a82e676aa75"
+                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/klaviyo-api/anibalealvarezs-klaviyo-api-84f561646d7092c7422483e0e816268c3fe7e75f-zip-a75a16.zip",
+                "reference": "84f561646d7092c7422483e0e816268c3fe7e75f",
+                "shasum": "8a6aec237bbdac3ba95bdebf231188db8157f5c6"
             },
             "require": {
                 "anibalealvarezs/api-client-skeleton": "dev-main",
@@ -163,7 +163,7 @@
                 }
             ],
             "description": "description",
-            "time": "2026-04-11T22:23:31+00:00"
+            "time": "2026-04-12T01:03:07+00:00"
         },
         {
             "name": "anibalealvarezs/oauth-v1",
