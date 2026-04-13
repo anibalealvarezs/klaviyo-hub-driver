@@ -13,6 +13,11 @@ class KlaviyoAuthProvider extends BaseAuthProvider
         return $this->data['klaviyo_auth']['access_token'] ?? $this->data['klaviyo_api_key'] ?? "";
     }
 
+    public function getUserId(): string
+    {
+        return $this->data['klaviyo_auth']['user_id'] ?? "";
+    }
+
     public function setAccessToken(string $token): void
     {
         if (!isset($this->data['klaviyo_auth'])) {
