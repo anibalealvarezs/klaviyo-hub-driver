@@ -209,7 +209,8 @@ class KlaviyoDriver implements SyncDriverInterface
                 measurements: [AggregatedMeasurement::count],
                 filter: $formattedFilters,
                 sortField: 'datetime',
-                callback: function ($aggregates) use ($metricId, $metricMap) {
+                callback: function ($aggregates) use ($metricId, $metricMap, $config) {
+                    $this->checkJobStatus($config);
                     // Convert raw data into metrics using the SDK
                     $collection = KlaviyoConvert::metricAggregates($aggregates, (string)$metricId, $metricMap);
                     
@@ -236,7 +237,8 @@ class KlaviyoDriver implements SyncDriverInterface
                 ["operator" => "less-than", "field" => "created", "value" => $endDate->format('Y-m-d H:i:s')],
             ],
             sortField: 'created',
-            callback: function ($customers) {
+            callback: function ($customers) use ($config) {
+                $this->checkJobStatus($config);
                 // Convert raw data into metrics/entities using the SDK
                 $collection = KlaviyoConvert::customers($customers);
                 
@@ -268,7 +270,8 @@ class KlaviyoDriver implements SyncDriverInterface
         $api->getAllCatalogItemsAndProcess(
             catalogItemsFields: $config['fields'] ?? null,
             filter: $formattedFilters,
-            callback: function ($products) {
+            callback: function ($products) use ($config) {
+                $this->checkJobStatus($config);
                 // Convert raw data into metrics/entities using the SDK
                 $collection = KlaviyoConvert::products($products);
                 
@@ -300,7 +303,8 @@ class KlaviyoDriver implements SyncDriverInterface
         $api->getAllCatalogCategoriesAndProcess(
             catalogCategoriesFields: $config['fields'] ?? null,
             filter: $formattedFilters,
-            callback: function ($categories) {
+            callback: function ($categories) use ($config) {
+                $this->checkJobStatus($config);
                 // Convert raw data into metrics/entities using the SDK
                 $collection = KlaviyoConvert::productCategories($categories);
                 
@@ -332,7 +336,8 @@ class KlaviyoDriver implements SyncDriverInterface
         $api->getAllCatalogVariantsAndProcess(
             catalogVariantsFields: $config['fields'] ?? null,
             filter: $formattedFilters,
-            callback: function ($variants) {
+            callback: function ($variants) use ($config) {
+                $this->checkJobStatus($config);
                 // Convert raw data into metrics/entities using the SDK
                 $collection = KlaviyoConvert::productVariants($variants);
                 
