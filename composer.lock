@@ -12,20 +12,20 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:anibalealvarezs/api-client-skeleton.git",
-                "reference": "64e442084a7ff81399b8de8f2f8841ff7bcd5b71"
+                "reference": "9c6f2bb82052a88d46a05980a5a0f36ed74bf75d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/api-client-skeleton/anibalealvarezs-api-client-skeleton-64e442084a7ff81399b8de8f2f8841ff7bcd5b71-zip-f19b3a.zip",
-                "reference": "64e442084a7ff81399b8de8f2f8841ff7bcd5b71",
-                "shasum": "91682b2da3b06a31fd06d8f96909a7af4d917ff7"
+                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/api-client-skeleton/anibalealvarezs-api-client-skeleton-9c6f2bb82052a88d46a05980a5a0f36ed74bf75d-zip-94db2b.zip",
+                "reference": "9c6f2bb82052a88d46a05980a5a0f36ed74bf75d",
+                "shasum": "c10e1b551ed06654ce3b061b077af946808f8099"
             },
             "require": {
                 "anibalealvarezs/oauth-v1": "@dev",
                 "ext-json": "*",
                 "guzzlehttp/guzzle": "^7.0",
                 "php": ">=8.1",
-                "predis/predis": "^2.0",
+                "predis/predis": "^2.0 || ^3.0",
                 "symfony/yaml": "^6.0 || ^7.0"
             },
             "require-dev": {
@@ -67,7 +67,7 @@
             "support": {
                 "issues": "https://github.com/anibalealvarezs/api-client-skeleton/issues"
             },
-            "time": "2026-04-14T13:43:28+00:00"
+            "time": "2026-04-17T22:38:18+00:00"
         },
         {
             "name": "anibalealvarezs/api-driver-core",
@@ -75,13 +75,13 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:anibalealvarezs/api-driver-core.git",
-                "reference": "8652d7e23860e6f5e7fb8046ef242dec863cb4b3"
+                "reference": "cd43a5786ea18b5e620d97605b4fe6fe8e1c1e9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/api-driver-core/anibalealvarezs-api-driver-core-8652d7e23860e6f5e7fb8046ef242dec863cb4b3-zip-bd4474.zip",
-                "reference": "8652d7e23860e6f5e7fb8046ef242dec863cb4b3",
-                "shasum": "1bedbae2ad16d14ad090a81fc475195236421878"
+                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/api-driver-core/anibalealvarezs-api-driver-core-cd43a5786ea18b5e620d97605b4fe6fe8e1c1e9f-zip-6d46ed.zip",
+                "reference": "cd43a5786ea18b5e620d97605b4fe6fe8e1c1e9f",
+                "shasum": "db1f9f4c67687c66d04526f544f2af6bed57d7f4"
             },
             "require": {
                 "anibalealvarezs/api-client-skeleton": "dev-main",
@@ -111,7 +111,7 @@
                 }
             ],
             "description": "Core interfaces and orchestration logic for APIs Hub drivers.",
-            "time": "2026-04-16T14:16:08+00:00"
+            "time": "2026-04-17T22:44:09+00:00"
         },
         {
             "name": "anibalealvarezs/klaviyo-api",
@@ -119,13 +119,13 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:anibalealvarezs/klaviyo-api.git",
-                "reference": "e758bef4defe78aa1cf8b5d39d73b09f2bc1c4c6"
+                "reference": "b502b962b6578566788d17c0bda9c37333989345"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/klaviyo-api/anibalealvarezs-klaviyo-api-e758bef4defe78aa1cf8b5d39d73b09f2bc1c4c6-zip-46b2c8.zip",
-                "reference": "e758bef4defe78aa1cf8b5d39d73b09f2bc1c4c6",
-                "shasum": "ebdef1f4ece30f534c13fb15b5a79518b46e0209"
+                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/klaviyo-api/anibalealvarezs-klaviyo-api-b502b962b6578566788d17c0bda9c37333989345-zip-5943a2.zip",
+                "reference": "b502b962b6578566788d17c0bda9c37333989345",
+                "shasum": "4db65385151eec4a02ae3302c5366a9eb8730223"
             },
             "require": {
                 "anibalealvarezs/api-client-skeleton": "dev-main",
@@ -163,7 +163,7 @@
                 }
             ],
             "description": "description",
-            "time": "2026-04-14T13:52:11+00:00"
+            "time": "2026-04-17T22:38:58+00:00"
         },
         {
             "name": "anibalealvarezs/oauth-v1",
@@ -171,13 +171,13 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:anibalealvarezs/oauth-v1.git",
-                "reference": "c986649e8bf0fbc1e05f5f2bb02e2d38269b3e2a"
+                "reference": "5ddf53cc7dc2265d3e3979838d974c931b2a30bf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/oauth-v1/anibalealvarezs-oauth-v1-c986649e8bf0fbc1e05f5f2bb02e2d38269b3e2a-zip-d1c052.zip",
-                "reference": "c986649e8bf0fbc1e05f5f2bb02e2d38269b3e2a",
-                "shasum": "47ff3415a730fb4eb1eabf03b0828e772ad25b58"
+                "url": "https://satis.anibalalvarez.com/dist/anibalealvarezs/oauth-v1/anibalealvarezs-oauth-v1-5ddf53cc7dc2265d3e3979838d974c931b2a30bf-zip-435722.zip",
+                "reference": "5ddf53cc7dc2265d3e3979838d974c931b2a30bf",
+                "shasum": "d3647ffc1ed75978a6731d421c5c6248867c3309"
             },
             "require": {
                 "php": ">=8.1"
@@ -221,7 +221,7 @@
             "support": {
                 "issues": "https://github.com/anibalealvarezs/OAuth-v1/issues"
             },
-            "time": "2026-04-10T21:12:50+00:00"
+            "time": "2026-04-17T22:37:20+00:00"
         },
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -2315,12 +2315,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "8dd0e998536ca4e809296f99e6ebdfe22b6e4150"
+                "reference": "aa41a9f517203bdccbf70c4af96358d1b2d74a07"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/8dd0e998536ca4e809296f99e6ebdfe22b6e4150",
-                "reference": "8dd0e998536ca4e809296f99e6ebdfe22b6e4150",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/aa41a9f517203bdccbf70c4af96358d1b2d74a07",
+                "reference": "aa41a9f517203bdccbf70c4af96358d1b2d74a07",
                 "shasum": ""
             },
             "require": {
@@ -2389,7 +2389,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-13T14:47:07+00:00"
+            "time": "2026-04-17T05:48:46+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -2481,12 +2481,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-deepclone.git",
-                "reference": "d450529b9d44fb5ead8cb546cc6516764c3d0ed5"
+                "reference": "6e90fdb4dc716c5a003a5e7da5daaf5d41cfb6d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-deepclone/zipball/d450529b9d44fb5ead8cb546cc6516764c3d0ed5",
-                "reference": "d450529b9d44fb5ead8cb546cc6516764c3d0ed5",
+                "url": "https://api.github.com/repos/symfony/polyfill-deepclone/zipball/6e90fdb4dc716c5a003a5e7da5daaf5d41cfb6d7",
+                "reference": "6e90fdb4dc716c5a003a5e7da5daaf5d41cfb6d7",
                 "shasum": ""
             },
             "require": {
@@ -2561,7 +2561,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-16T13:00:20+00:00"
+            "time": "2026-04-17T11:37:25+00:00"
         },
         {
             "name": "symfony/polyfill-intl-grapheme",
@@ -2993,12 +2993,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "54933b850a50fa719e676ca05616da3391393c41"
+                "reference": "4a6758902eb83aedafc5f831a3ac5684b6b5f13e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/54933b850a50fa719e676ca05616da3391393c41",
-                "reference": "54933b850a50fa719e676ca05616da3391393c41",
+                "url": "https://api.github.com/repos/symfony/string/zipball/4a6758902eb83aedafc5f831a3ac5684b6b5f13e",
+                "reference": "4a6758902eb83aedafc5f831a3ac5684b6b5f13e",
                 "shasum": ""
             },
             "require": {
@@ -3076,7 +3076,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-13T15:52:40+00:00"
+            "time": "2026-04-17T05:56:38+00:00"
         },
         {
             "name": "symfony/translation",
