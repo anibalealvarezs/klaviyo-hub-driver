@@ -127,7 +127,14 @@ class KlaviyoDriver implements SyncDriverInterface
         return 'klaviyo';
     }
 
-    public function sync(DateTime $startDate, DateTime $endDate, array $config = []): Response
+    public function sync(
+        DateTime $startDate,
+        DateTime $endDate,
+        array $config = [],
+        ?callable $shouldContinue = null,
+        ?callable $identityMapper = null
+    ): Response
+
     {
         if (!$this->authProvider) {
             throw new Exception("AuthProvider not set for KlaviyoDriver");
@@ -446,7 +453,8 @@ class KlaviyoDriver implements SyncDriverInterface
     /**
      * @inheritdoc
      */
-    public function initializeEntities(mixed $entityManager, array $config = []): array
+    public function initializeEntities(array $config = []): array
+
     {
         return ['initialized' => 0, 'skipped' => 0];
     }
@@ -454,13 +462,14 @@ class KlaviyoDriver implements SyncDriverInterface
     /**
      * @inheritdoc
      */
-    public function reset(mixed $entityManager, string $mode = 'all', array $config = []): array
+    public function reset(string $mode = 'all', array $config = []): array
     {
-        if (!$entityManager instanceof \Doctrine\ORM\EntityManagerInterface) {
+        $manager = $config['manager'] ?? \Helpers\Helpers::getManager();
+        if (!$manager instanceof \Doctrine\ORM\EntityManagerInterface) {
             throw new \Exception("EntityManagerInterface required for KlaviyoDriver reset.");
         }
 
-        $resetter = new \Anibalealvarezs\KlaviyoHubDriver\Services\KlaviyoResetService($entityManager);
+        $resetter = new \Anibalealvarezs\KlaviyoHubDriver\Services\KlaviyoResetService($manager);
         return $resetter->reset($this->getChannel(), $mode);
     }
 
