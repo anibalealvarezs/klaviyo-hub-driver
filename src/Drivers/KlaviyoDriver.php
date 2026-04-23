@@ -411,7 +411,7 @@ class KlaviyoDriver implements SyncDriverInterface
     /**
      * @inheritdoc
      */
-    public function getAssetPatterns(): array
+    public static function getAssetPatterns(): array
     {
         return [
             'klaviyo_account' => [
