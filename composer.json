@@ -4,7 +4,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "An\u00edbal \u00c1lvarez",
+            "name": "Aníbal Álvarez",
             "email": "anibalealvarezs@gmail.com"
         }
     ],
@@ -28,5 +28,10 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": false
+    "prefer-stable": false,
+    "require-dev": {
+        "fakerphp/faker": "^1.23",
+        "doctrine/instantiator": "^1.5",
+        "phpunit/phpunit": "^9.6.20"
+    }
 }
