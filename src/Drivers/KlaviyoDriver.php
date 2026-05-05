@@ -1,225 +1,283 @@
 <?php
 
-namespace Anibalealvarezs\KlaviyoHubDriver\Drivers;
+    namespace Anibalealvarezs\KlaviyoHubDriver\Drivers;
 
-use Anibalealvarezs\ApiDriverCore\Interfaces\SyncDriverInterface;
-use Anibalealvarezs\ApiDriverCore\Interfaces\AuthProviderInterface;
-use Anibalealvarezs\ApiDriverCore\Traits\HasUpdatableCredentials;
-use Anibalealvarezs\KlaviyoApi\KlaviyoApi;
-use Anibalealvarezs\KlaviyoApi\Enums\AggregatedMeasurement;
-use Anibalealvarezs\KlaviyoHubDriver\Conversions\KlaviyoConvert;
-use Symfony\Component\HttpFoundation\Response;
-use Psr\Log\LoggerInterface;
-use DateTime;
-use Exception;
-use Anibalealvarezs\ApiDriverCore\Interfaces\SeederInterface;
-use Anibalealvarezs\ApiDriverCore\Traits\SyncDriverTrait;
+    use Anibalealvarezs\ApiDriverCore\Classes\MetricProfileTemplates;
+    use Anibalealvarezs\ApiDriverCore\Classes\AggregationProfileTemplates;
+    use Anibalealvarezs\ApiDriverCore\Interfaces\MetricProfileProviderInterface;
+    use Anibalealvarezs\ApiDriverCore\Interfaces\AggregationProfileProviderInterface;
+    use Anibalealvarezs\ApiDriverCore\Interfaces\SyncDriverInterface;
+    use Anibalealvarezs\ApiDriverCore\Interfaces\AuthProviderInterface;
+    use Anibalealvarezs\ApiDriverCore\Services\ConfigSchemaRegistryService;
+    use Anibalealvarezs\KlaviyoApi\KlaviyoApi;
+    use Anibalealvarezs\KlaviyoApi\Enums\AggregatedMeasurement;
+    use Anibalealvarezs\KlaviyoHubDriver\Conversions\KlaviyoConvert;
+    use Anibalealvarezs\KlaviyoHubDriver\Services\KlaviyoResetService;
+    use Doctrine\ORM\EntityManagerInterface;
+    use GuzzleHttp\Exception\GuzzleException;
+    use Helpers\Helpers;
+    use Symfony\Component\HttpFoundation\Response;
+    use Psr\Log\LoggerInterface;
+    use DateTime;
+    use Exception;
+    use Anibalealvarezs\ApiDriverCore\Interfaces\SeederInterface;
+    use Anibalealvarezs\ApiDriverCore\Traits\SyncDriverTrait;
 
-class KlaviyoDriver implements SyncDriverInterface
-{
-    use SyncDriverTrait;
-
-    /**
-     * Store credentials for this driver.
-     * 
-     * @param array $credentials
-     * @return void
-     */
-    public static function storeCredentials(array $credentials): void
+    class KlaviyoDriver implements SyncDriverInterface, MetricProfileProviderInterface, AggregationProfileProviderInterface
     {
-        // No implementation needed for this driver
-    }
+        use SyncDriverTrait;
 
-    /**
-     * Get the public resources exposed by this driver.
-     * 
-     * @return array
-     */
-    public static function getPublicResources(): array
-    {
-        return [];
-    }
-
-    /**
-     * Get the display label for the channel.
-     * 
-     * @return string
-     */
-    public static function getChannelLabel(): string
-    {
-        return 'Klaviyo';
-    }
-
-    /**
-     * Get the display icon for the channel.
-     * 
-     * @return string
-     */
-    public static function getChannelIcon(): string
-    {
-        return 'K';
-    }
-
-    /**
-     * Get the routes served by this driver.
-     * 
-     * @return array
-     */
-    public static function getRoutes(): array
-    {
-        return [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function fetchAvailableAssets(bool $throwOnError = false): array
-    {
-        return [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function validateAuthentication(): array
-    {
-        return [
-            'success' => true,
-            'message' => 'Status unknown for this driver.',
-            'details' => []
-        ];
-    }
-
-    public static function getCommonConfigKey(): ?string
-    {
-        return null;
-    }
-
-    private ?AuthProviderInterface $authProvider = null;
-    private ?LoggerInterface $logger = null;
-    /** @var callable|null */
-    private $dataProcessor = null;
-
-    public function __construct(?AuthProviderInterface $authProvider = null, ?LoggerInterface $logger = null)
-    {
-        $this->authProvider = $authProvider;
-        $this->logger = $logger;
-    }
-
-    public function setAuthProvider(AuthProviderInterface $provider): void
-    {
-        $this->authProvider = $provider;
-    }
-
-    public function getAuthProvider(): ?AuthProviderInterface
-    {
-        return $this->authProvider;
-    }
-
-    public function setDataProcessor(callable $processor): void
-    {
-        $this->dataProcessor = $processor;
-    }
-
-    public function getChannel(): string
-    {
-        return 'klaviyo';
-    }
-
-    public function sync(
-        DateTime $startDate,
-        DateTime $endDate,
-        array $config = [],
-        ?callable $shouldContinue = null,
-        ?callable $identityMapper = null
-    ): Response
-
-    {
-        if (!$this->authProvider) {
-            throw new Exception("AuthProvider not set for KlaviyoDriver");
+        /**
+         * Store credentials for this driver.
+         *
+         * @param array $credentials
+         * @return void
+         */
+        public static function storeCredentials(array $credentials): void
+        {
+            // No implementation needed for this driver
         }
 
-        if (!$this->dataProcessor) {
-            throw new Exception("DataProcessor not set for KlaviyoDriver");
+        /**
+         * Get the public resources exposed by this driver.
+         *
+         * @return array
+         */
+        public static function getPublicResources(): array
+        {
+            return [];
         }
 
-        if ($this->logger) {
-            $this->logger->info("Starting KlaviyoDriver sync (Modular)...");
+        /**
+         * Get the display label for the channel.
+         *
+         * @return string
+         */
+        public static function getChannelLabel(): string
+        {
+            return 'Klaviyo';
         }
 
-        try {
-            $api = new KlaviyoApi($this->authProvider->getAccessToken());
-
-            $type = $config['type'] ?? 'all';
-
-            // 1. Sync Metrics (Aggregates)
-            if ($type === 'all' || $type === 'metrics') {
-                $this->syncMetrics($api, $startDate, $endDate, $config);
-            }
-
-            // 2. Sync Customers (Profiles)
-            if ($type === 'all' || $type === 'customers') {
-                $this->syncCustomers($api, $startDate, $endDate, $config);
-            }
-
-            // 3. Sync Products (Catalog Items)
-            if ($type === 'all' || $type === 'products') {
-                $this->syncProducts($api, $config);
-            }
-
-            // 4. Sync Product Categories (Catalog Categories)
-            if ($type === 'all' || $type === 'product_categories') {
-                $this->syncProductCategories($api, $config);
-            }
-
-            // 5. Sync Product Variants (Catalog Variants)
-            if ($type === 'all' || $type === 'product_variants') {
-                $this->syncProductVariants($api, $config);
-            }
-
-            return new Response(json_encode(['status' => 'success', 'message' => "Klaviyo sync [{$type}] completed"]));
-
-        } catch (Exception $e) {
-            if ($this->logger) {
-                $this->logger->error("KlaviyoDriver error: " . $e->getMessage());
-            }
-            throw $e;
-        }
-    }
-
-    private function syncMetrics(KlaviyoApi $api, DateTime $startDate, DateTime $endDate, array $config): void
-    {
-        if ($this->logger) {
-            $this->logger->info("Syncing Klaviyo Metrics Aggregates...");
+        /**
+         * Get the display icon for the channel.
+         *
+         * @return string
+         */
+        public static function getChannelIcon(): string
+        {
+            return 'K';
         }
 
-        $metricIds = $config['metrics'] ?? [];
-        if (empty($metricIds)) {
-            $metricMap = $api->getMetricsMap();
-            $metricIds = array_keys($metricMap);
-        } else {
-            $metricMap = $config['metricMap'] ?? [];
+        public static function getMetricProfiles(): array
+        {
+            return [
+                MetricProfileTemplates::campaignBreakdown(
+                    channel: 'klaviyo',
+                    key: 'klaviyo_campaign',
+                    label: 'Klaviyo Campaign'
+                ),
+            ];
         }
 
-        $formattedFilters = [
-            ["operator" => "greater-than", "field" => "datetime", "value" => $startDate->format('Y-m-d H:i:s')],
-            ["operator" => "less-than", "field" => "datetime", "value" => $endDate->format('Y-m-d H:i:s')]
-        ];
+        public static function getAggregationProfiles(): array
+        {
+            return [
+                AggregationProfileTemplates::flowCampaignProfile(
+                    channel: 'klaviyo',
+                    key: 'klaviyo_flow_campaign',
+                    label: 'Klaviyo Flow & Campaign Analysis'
+                ),
+            ];
+        }
 
-        foreach ($metricIds as $metricId) {
-            if ($this->logger) {
-                $this->logger->info("Processing Klaviyo metric: " . ($metricMap[$metricId] ?? $metricId));
+        /**
+         * Get the routes served by this driver.
+         *
+         * @return array
+         */
+        public static function getRoutes(): array
+        {
+            return [];
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public function fetchAvailableAssets(bool $throwOnError = false): array
+        {
+            return [];
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public function validateAuthentication(): array
+        {
+            return [
+                'success' => true,
+                'message' => 'Status unknown for this driver.',
+                'details' => []
+            ];
+        }
+
+        public static function getCommonConfigKey(): ?string
+        {
+            return null;
+        }
+
+        private ?AuthProviderInterface $authProvider = null;
+        private ?LoggerInterface $logger = null;
+        /** @var callable|null */
+        private $dataProcessor = null;
+
+        public function __construct(?AuthProviderInterface $authProvider = null, ?LoggerInterface $logger = null)
+        {
+            $this->authProvider = $authProvider;
+            $this->logger = $logger;
+        }
+
+        public function setAuthProvider(AuthProviderInterface $provider): void
+        {
+            $this->authProvider = $provider;
+        }
+
+        public function getAuthProvider(): ?AuthProviderInterface
+        {
+            return $this->authProvider;
+        }
+
+        public function setDataProcessor(callable $processor): void
+        {
+            $this->dataProcessor = $processor;
+        }
+
+        public function getChannel(): string
+        {
+            return 'klaviyo';
+        }
+
+        /**
+         * @throws GuzzleException
+         * @throws Exception
+         */
+        public function sync(
+            DateTime  $startDate,
+            DateTime  $endDate,
+            array     $config = [],
+            ?callable $shouldContinue = null,
+            ?callable $identityMapper = null
+        ): Response
+
+        {
+            if (!$this->authProvider) {
+                throw new Exception("AuthProvider not set for KlaviyoDriver");
             }
-            $api->getAllMetricAggregatesAndProcess(
-                metricId: $metricId,
-                measurements: [AggregatedMeasurement::count],
-                filter: $formattedFilters,
-                sortField: 'datetime',
-                callback: function ($aggregates) use ($metricId, $metricMap, $config) {
+
+            if (!$this->dataProcessor) {
+                throw new Exception("DataProcessor not set for KlaviyoDriver");
+            }
+
+            $this->logger?->info("Starting KlaviyoDriver sync (Modular)...");
+
+            try {
+                $api = new KlaviyoApi($this->authProvider->getAccessToken());
+
+                $type = $config['type'] ?? 'all';
+
+                // 1. Sync Metrics (Aggregates)
+                if ($type === 'all' || $type === 'metrics') {
+                    $this->syncMetrics($api, $startDate, $endDate, $config);
+                }
+
+                // 2. Sync Customers (Profiles)
+                if ($type === 'all' || $type === 'customers') {
+                    $this->syncCustomers($api, $startDate, $endDate, $config);
+                }
+
+                // 3. Sync Products (Catalog Items)
+                if ($type === 'all' || $type === 'products') {
+                    $this->syncProducts($api, $config);
+                }
+
+                // 4. Sync Product Categories (Catalog Categories)
+                if ($type === 'all' || $type === 'product_categories') {
+                    $this->syncProductCategories($api, $config);
+                }
+
+                // 5. Sync Product Variants (Catalog Variants)
+                if ($type === 'all' || $type === 'product_variants') {
+                    $this->syncProductVariants($api, $config);
+                }
+
+                return new Response(json_encode(['status' => 'success', 'message' => "Klaviyo sync [{$type}] completed"]));
+
+            } catch (Exception $e) {
+                $this->logger?->error("KlaviyoDriver error: ".$e->getMessage());
+                throw $e;
+            }
+        }
+
+        /**
+         * @throws GuzzleException
+         */
+        private function syncMetrics(KlaviyoApi $api, DateTime $startDate, DateTime $endDate, array $config): void
+        {
+            $this->logger?->info("Syncing Klaviyo Metrics Aggregates...");
+
+            $metricIds = $config['metrics'] ?? [];
+            if (empty($metricIds)) {
+                $metricMap = $api->getMetricsMap();
+                $metricIds = array_keys($metricMap);
+            } else {
+                $metricMap = $config['metricMap'] ?? [];
+            }
+
+            $formattedFilters = [
+                ["operator" => "greater-than", "field" => "datetime", "value" => $startDate->format('Y-m-d H:i:s')],
+                ["operator" => "less-than", "field" => "datetime", "value" => $endDate->format('Y-m-d H:i:s')]
+            ];
+
+            foreach ($metricIds as $metricId) {
+                $this->logger?->info("Processing Klaviyo metric: ".($metricMap[$metricId] ?? $metricId));
+                $api->getAllMetricAggregatesAndProcess(
+                    metricId: $metricId,
+                    sortField: 'datetime',
+                    measurements: [AggregatedMeasurement::count],
+                    filter: $formattedFilters,
+                    callback: function ($aggregates) use ($metricId, $metricMap, $config) {
+                        $this->checkJobStatus($config);
+                        // Convert raw data into metrics using the SDK
+                        $collection = KlaviyoConvert::metricAggregates($aggregates, (string)$metricId, $metricMap);
+
+                        // Persist converted collection in the host
+                        if ($this->dataProcessor && $collection->count() > 0) {
+                            ($this->dataProcessor)($collection, $this->logger);
+                        }
+                    }
+                );
+            }
+        }
+
+        /**
+         * @throws GuzzleException
+         */
+        private function syncCustomers(KlaviyoApi $api, DateTime $startDate, DateTime $endDate, array $config): void
+        {
+            $this->logger?->info("Syncing Klaviyo Customers...");
+
+            $api->getAllProfilesAndProcess(
+                profileFields: $config['fields'] ?? null,
+                additionalFields: ['predictive_analytics', 'subscriptions'],
+                filter: [
+                    ["operator" => "greater-than", "field" => "created", "value" => $startDate->format('Y-m-d H:i:s')],
+                    ["operator" => "less-than", "field" => "created", "value" => $endDate->format('Y-m-d H:i:s')],
+                ],
+                sortField: 'created',
+                callback: function ($customers) use ($config) {
                     $this->checkJobStatus($config);
-                    // Convert raw data into metrics using the SDK
-                    $collection = KlaviyoConvert::metricAggregates($aggregates, (string)$metricId, $metricMap);
-                    
+                    // Convert raw data into metrics/entities using the SDK
+                    $collection = KlaviyoConvert::customers($customers);
+
                     // Persist converted collection in the host
                     if ($this->dataProcessor && $collection->count() > 0) {
                         ($this->dataProcessor)($collection, $this->logger);
@@ -227,269 +285,262 @@ class KlaviyoDriver implements SyncDriverInterface
                 }
             );
         }
-    }
 
-    private function syncCustomers(KlaviyoApi $api, DateTime $startDate, DateTime $endDate, array $config): void
-    {
-        if ($this->logger) {
-            $this->logger->info("Syncing Klaviyo Customers...");
-        }
-        
-        $api->getAllProfilesAndProcess(
-            profileFields: $config['fields'] ?? null,
-            additionalFields: ['predictive_analytics', 'subscriptions'],
-            filter: [
-                ["operator" => "greater-than", "field" => "created", "value" => $startDate->format('Y-m-d H:i:s')],
-                ["operator" => "less-than", "field" => "created", "value" => $endDate->format('Y-m-d H:i:s')],
-            ],
-            sortField: 'created',
-            callback: function ($customers) use ($config) {
-                $this->checkJobStatus($config);
-                // Convert raw data into metrics/entities using the SDK
-                $collection = KlaviyoConvert::customers($customers);
-                
-                // Persist converted collection in the host
-                if ($this->dataProcessor && $collection->count() > 0) {
-                    ($this->dataProcessor)($collection, $this->logger);
+        /**
+         * @throws GuzzleException
+         */
+        private function syncProducts(KlaviyoApi $api, array $config): void
+        {
+            $this->logger?->info("Syncing Klaviyo Products...");
+
+            $formattedFilters = [];
+            if (isset($config['filters'])) {
+                foreach ($config['filters'] as $key => $value) {
+                    $formattedFilters[] = [
+                        "operator" => 'equals',
+                        "field"    => $key,
+                        "value"    => $value,
+                    ];
                 }
             }
-        );
-    }
 
-    private function syncProducts(KlaviyoApi $api, array $config): void
-    {
-        if ($this->logger) {
-            $this->logger->info("Syncing Klaviyo Products...");
+            $api->getAllCatalogItemsAndProcess(
+                catalogItemsFields: $config['fields'] ?? null,
+                filter: $formattedFilters,
+                callback: function ($products) use ($config) {
+                    $this->checkJobStatus($config);
+                    // Convert raw data into metrics/entities using the SDK
+                    $collection = KlaviyoConvert::products($products);
+
+                    // Persist converted collection in the host
+                    if ($this->dataProcessor && $collection->count() > 0) {
+                        ($this->dataProcessor)($collection, $this->logger);
+                    }
+                }
+            );
         }
 
-        $formattedFilters = [];
-        if (isset($config['filters'])) {
-            foreach ($config['filters'] as $key => $value) {
-                $formattedFilters[] = [
-                    "operator" => 'equals',
-                    "field" => $key,
-                    "value" => $value,
-                ];
-            }
-        }
+        /**
+         * @throws GuzzleException
+         */
+        private function syncProductCategories(KlaviyoApi $api, array $config): void
+        {
+            $this->logger?->info("Syncing Klaviyo Product Categories...");
 
-        $api->getAllCatalogItemsAndProcess(
-            catalogItemsFields: $config['fields'] ?? null,
-            filter: $formattedFilters,
-            callback: function ($products) use ($config) {
-                $this->checkJobStatus($config);
-                // Convert raw data into metrics/entities using the SDK
-                $collection = KlaviyoConvert::products($products);
-                
-                // Persist converted collection in the host
-                if ($this->dataProcessor && $collection->count() > 0) {
-                    ($this->dataProcessor)($collection, $this->logger);
+            $formattedFilters = [];
+            if (isset($config['filters'])) {
+                foreach ($config['filters'] as $key => $value) {
+                    $formattedFilters[] = [
+                        "operator" => 'equals',
+                        "field"    => $key,
+                        "value"    => $value,
+                    ];
                 }
             }
-        );
-    }
 
-    private function syncProductCategories(KlaviyoApi $api, array $config): void
-    {
-        if ($this->logger) {
-            $this->logger->info("Syncing Klaviyo Product Categories...");
+            $api->getAllCatalogCategoriesAndProcess(
+                catalogCategoriesFields: $config['fields'] ?? null,
+                filter: $formattedFilters,
+                callback: function ($categories) use ($config) {
+                    $this->checkJobStatus($config);
+                    // Convert raw data into metrics/entities using the SDK
+                    $collection = KlaviyoConvert::productCategories($categories);
+
+                    // Persist converted collection in the host
+                    if ($this->dataProcessor && $collection->count() > 0) {
+                        ($this->dataProcessor)($collection, $this->logger);
+                    }
+                }
+            );
         }
 
-        $formattedFilters = [];
-        if (isset($config['filters'])) {
-            foreach ($config['filters'] as $key => $value) {
-                $formattedFilters[] = [
-                    "operator" => 'equals',
-                    "field" => $key,
-                    "value" => $value,
-                ];
-            }
-        }
+        /**
+         * @throws GuzzleException
+         */
+        private function syncProductVariants(KlaviyoApi $api, array $config): void
+        {
+            $this->logger?->info("Syncing Klaviyo Product Variants...");
 
-        $api->getAllCatalogCategoriesAndProcess(
-            catalogCategoriesFields: $config['fields'] ?? null,
-            filter: $formattedFilters,
-            callback: function ($categories) use ($config) {
-                $this->checkJobStatus($config);
-                // Convert raw data into metrics/entities using the SDK
-                $collection = KlaviyoConvert::productCategories($categories);
-                
-                // Persist converted collection in the host
-                if ($this->dataProcessor && $collection->count() > 0) {
-                    ($this->dataProcessor)($collection, $this->logger);
+            $formattedFilters = [];
+            if (isset($config['filters'])) {
+                foreach ($config['filters'] as $key => $value) {
+                    $formattedFilters[] = [
+                        "operator" => 'equals',
+                        "field"    => $key,
+                        "value"    => $value,
+                    ];
                 }
             }
-        );
-    }
 
-    private function syncProductVariants(KlaviyoApi $api, array $config): void
-    {
-        if ($this->logger) {
-            $this->logger->info("Syncing Klaviyo Product Variants...");
-        }
+            $api->getAllCatalogVariantsAndProcess(
+                catalogVariantsFields: $config['fields'] ?? null,
+                filter: $formattedFilters,
+                callback: function ($variants) use ($config) {
+                    $this->checkJobStatus($config);
+                    // Convert raw data into metrics/entities using the SDK
+                    $collection = KlaviyoConvert::productVariants($variants);
 
-        $formattedFilters = [];
-        if (isset($config['filters'])) {
-            foreach ($config['filters'] as $key => $value) {
-                $formattedFilters[] = [
-                    "operator" => 'equals',
-                    "field" => $key,
-                    "value" => $value,
-                ];
-            }
-        }
-
-        $api->getAllCatalogVariantsAndProcess(
-            catalogVariantsFields: $config['fields'] ?? null,
-            filter: $formattedFilters,
-            callback: function ($variants) use ($config) {
-                $this->checkJobStatus($config);
-                // Convert raw data into metrics/entities using the SDK
-                $collection = KlaviyoConvert::productVariants($variants);
-                
-                // Persist converted collection in the host
-                if ($this->dataProcessor && $collection->count() > 0) {
-                    ($this->dataProcessor)($collection, $this->logger);
+                    // Persist converted collection in the host
+                    if ($this->dataProcessor && $collection->count() > 0) {
+                        ($this->dataProcessor)($collection, $this->logger);
+                    }
                 }
-            }
-        );
-    }
-
-    public function getApi(array $config = []): mixed
-    {
-        return null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getConfigSchema(): array
-    {
-        return [
-            'global' => [
-                'enabled' => false,
-                'cache_history_range' => '1 year',
-                'cache_aggregations' => false,
-            ],
-            'entity' => [
-                'id' => '',
-                'name' => '',
-                'enabled' => true,
-            ]
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function validateConfig(array $config): array
-    {
-        return \Anibalealvarezs\ApiDriverCore\Services\ConfigSchemaRegistryService::hydrate(
-            $this->getChannel(),
-            'global',
-            $config,
-            $this->getConfigSchema()
-        );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function seedDemoData(SeederInterface $seeder, array $config = []): void
-    {
-        // Placeholder for future implementation
-    }
-
-    public array $updatableCredentials = [
-        'KLAVIYO_API_KEY'
-    ];
-    public function boot(): void
-    {
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getAssetPatterns(): array
-    {
-        return [
-            'klaviyo_account' => [
-                'prefix' => 'kv:account',
-                'hostnames' => ['klaviyo.com'],
-                'url_id_regex' => null
-            ]
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getPageTypes(): array
-    {
-        return [
-            'klaviyo_account' => 'Klaviyo Account'
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getAccountTypes(): array
-    {
-        return [
-            'klaviyo_account' => 'Klaviyo Account'
-        ];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function getEntityPaths(): array
-    {
-        return [];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function initializeEntities(array $config = []): array
-
-    {
-        return ['initialized' => 0, 'skipped' => 0];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function reset(string $mode = 'all', array $config = []): array
-    {
-        $manager = $config['manager'] ?? \Helpers\Helpers::getManager();
-        if (!$manager instanceof \Doctrine\ORM\EntityManagerInterface) {
-            throw new \Exception("EntityManagerInterface required for KlaviyoDriver reset.");
+            );
         }
 
-        $resetter = new \Anibalealvarezs\KlaviyoHubDriver\Services\KlaviyoResetService($manager);
-        return $resetter->reset($this->getChannel(), $mode);
-    }
+        public function getApi(array $config = []): mixed
+        {
+            return null;
+        }
 
-    public function updateConfiguration(array $newData, array $currentConfig): array
-    {
-        return $currentConfig;
-    }
+        /**
+         * @inheritdoc
+         */
+        public function getConfigSchema(): array
+        {
+            return [
+                'global' => [
+                    'enabled'             => false,
+                    'cache_history_range' => '1 year',
+                    'cache_aggregations'  => false,
+                ],
+                'entity' => [
+                    'id'      => '',
+                    'name'    => '',
+                    'enabled' => true,
+                ]
+            ];
+        }
 
-    public function prepareUiConfig(array $channelConfig): array
-    {
-        return [];
-    }
-    /**
-     * @inheritdoc
-     */
-    public function getDateFilterMapping(): array
-    {
-        return [
-            'start' => 'createdAtMin',
-            'end' => 'createdAtMax'
+        /**
+         * @inheritdoc
+         */
+        public function validateConfig(array $config): array
+        {
+            return ConfigSchemaRegistryService::hydrate(
+                $this->getChannel(),
+                'global',
+                $config,
+                $this->getConfigSchema()
+            );
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public function seedDemoData(SeederInterface $seeder, array $config = []): void
+        {
+            // Placeholder for future implementation
+        }
+
+        public array $updatableCredentials = [
+            'KLAVIYO_API_KEY'
         ];
-    }
-}
 
+        public function boot(): void
+        {
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public static function getAssetPatterns(): array
+        {
+            return [
+                'klaviyo_account' => [
+                    'prefix'       => 'kv:account',
+                    'hostnames'    => ['klaviyo.com'],
+                    'url_id_regex' => null
+                ]
+            ];
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public static function getPageTypes(): array
+        {
+            return [
+                'klaviyo_account' => 'Klaviyo Account'
+            ];
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public static function getAccountTypes(): array
+        {
+            return [
+                'klaviyo_account' => 'Klaviyo Account'
+            ];
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public static function getEntityPaths(): array
+        {
+            return [];
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public function initializeEntities(array $config = []): array
+
+        {
+            return ['initialized' => 0, 'skipped' => 0];
+        }
+
+        /**
+         * @inheritdoc
+         * @throws Exception
+         */
+        public function reset(string $mode = 'all', array $config = []): array
+        {
+            $manager = $config['manager'] ?? Helpers::getManager();
+            if (!$manager instanceof EntityManagerInterface) {
+                throw new Exception("EntityManagerInterface required for KlaviyoDriver reset.");
+            }
+
+            $resetter = new KlaviyoResetService($manager);
+
+            return $resetter->reset($this->getChannel(), $mode);
+        }
+
+        public function updateConfiguration(array $newData, array $currentConfig): array
+        {
+            return $currentConfig;
+        }
+
+        public function prepareUiConfig(array $channelConfig): array
+        {
+            return [];
+        }
+
+        /**
+         * @inheritdoc
+         */
+        public function getDateFilterMapping(): array
+        {
+            return [
+                'start' => 'createdAtMin',
+                'end'   => 'createdAtMax'
+            ];
+        }
+
+        /**
+         * Check if the job should continue.
+         *
+         * @param array $config
+         * @return void
+         * @throws Exception
+         */
+        private function checkJobStatus(array $config): void
+        {
+            $shouldContinue = $config['shouldContinue'] ?? null;
+            if ($shouldContinue && !$shouldContinue()) {
+                throw new Exception("Sync aborted by the orchestrator.");
+            }
+        }
+    }
