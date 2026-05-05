@@ -6,6 +6,7 @@
     use Anibalealvarezs\ApiDriverCore\Classes\AggregationProfileTemplates;
     use Anibalealvarezs\ApiDriverCore\Interfaces\MetricProfileProviderInterface;
     use Anibalealvarezs\ApiDriverCore\Interfaces\AggregationProfileProviderInterface;
+    use Anibalealvarezs\ApiDriverCore\Interfaces\CanonicalMetricDictionaryProviderInterface;
     use Anibalealvarezs\ApiDriverCore\Interfaces\SyncDriverInterface;
     use Anibalealvarezs\ApiDriverCore\Interfaces\AuthProviderInterface;
     use Anibalealvarezs\ApiDriverCore\Services\ConfigSchemaRegistryService;
@@ -23,7 +24,7 @@
     use Anibalealvarezs\ApiDriverCore\Interfaces\SeederInterface;
     use Anibalealvarezs\ApiDriverCore\Traits\SyncDriverTrait;
 
-    class KlaviyoDriver implements SyncDriverInterface, MetricProfileProviderInterface, AggregationProfileProviderInterface
+    class KlaviyoDriver implements SyncDriverInterface, MetricProfileProviderInterface, AggregationProfileProviderInterface, CanonicalMetricDictionaryProviderInterface
     {
         use SyncDriverTrait;
 
@@ -88,6 +89,20 @@
                     label: 'Klaviyo Flow & Campaign Analysis'
                 ),
             ];
+        }
+
+        public static function getCanonicalMetricDictionary(): array
+        {
+            return [
+                'conversions' => ['conversion', 'conversions', 'placed_order', 'placed_order_daily'],
+                'conversion_rate' => ['conversion_rate', 'placed_order_rate'],
+                'roas_purchase' => ['roas', 'purchase_roas'],
+            ];
+        }
+
+        public static function getPlatformEntityIdField(): string
+        {
+            return 'id';
         }
 
         /**

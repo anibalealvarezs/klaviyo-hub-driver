@@ -10,3 +10,4 @@
 - Keep secrets, credentials, tokens, and private endpoints out of this file.
 ## Current notes
 - Klaviyo driver should keep source semantics isolated from orchestration logic.
+- Klaviyo driver now implements `CanonicalMetricDictionaryProviderInterface` to expose read-only canonical metric equivalences at aggregation time (`conversions`, `conversion_rate`, `roas_purchase`) while preserving raw synced metric names.
