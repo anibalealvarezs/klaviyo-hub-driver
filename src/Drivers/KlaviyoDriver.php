@@ -128,6 +128,14 @@
          */
         public function validateAuthentication(): array
         {
+            if (!$this->authProvider || !$this->authProvider->hasCredentials()) {
+                return [
+                    'success' => false,
+                    'message' => 'Credentials not configured.',
+                    'details' => []
+                ];
+            }
+
             return [
                 'success' => true,
                 'message' => 'Status unknown for this driver.',
@@ -405,6 +413,9 @@
 
         public function getApi(array $config = []): mixed
         {
+            if (!$this->authProvider || !$this->authProvider->hasCredentials()) {
+                throw new Exception("Credentials not configured.");
+            }
             return null;
         }
 
