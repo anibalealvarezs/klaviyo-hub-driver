@@ -26,4 +26,9 @@ class KlaviyoAuthProvider extends BaseAuthProvider
         $this->data['klaviyo_auth']['access_token'] = $token;
         $this->save();
     }
+
+    public function hasCredentials(): bool
+    {
+        return !empty($this->getAccessToken());
+    }
 }
