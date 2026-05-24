@@ -1,42 +1,42 @@
 {
-  "name": "anibalealvarezs/klaviyo-hub-driver",
-  "description": "Klaviyo driver for the Hub ecosystem",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Aníbal Álvarez",
-      "email": "anibalealvarezs@gmail.com"
-    }
-  ],
-  "require": {
-    "anibalealvarezs/api-client-skeleton": "^1.0.0",
-    "anibalealvarezs/api-driver-core": "^1.0.0",
-    "anibalealvarezs/klaviyo-api": "^0.1.0",
-    "psr/log": "^1.0 || ^2.0 || ^3.0",
-    "symfony/http-foundation": "^6.0 || ^7.0",
-    "php": ">=8.3"
-  },
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://satis.anibalalvarez.com/"
-    }
-  ],
-  "autoload": {
-    "psr-4": {
-      "Anibalealvarezs\\KlaviyoHubDriver\\": "src/"
-    }
-  },
-  "minimum-stability": "dev",
-  "require-dev": {
-    "fakerphp/faker": "^1.23",
-    "phpunit/phpunit": "^9.6.20",
-    "doctrine/instantiator": "^1.5"
-  },
-  "config": {
-    "platform": {
-      "php": "8.3.0"
-    }
-  },
-  "prefer-stable": true
+    "name":  "anibalealvarezs/klaviyo-hub-driver",
+    "description":  "Klaviyo driver for the Hub ecosystem",
+    "license":  "MIT",
+    "authors":  [
+                    {
+                        "name":  "AnÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â­bal ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¾Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Âlvarez",
+                        "email":  "anibalealvarezs@gmail.com"
+                    }
+                ],
+    "require":  {
+                    "anibalealvarezs/api-client-skeleton":  "^1.0.0",
+                    "anibalealvarezs/api-driver-core":  "^1.0.0",
+                    "anibalealvarezs/klaviyo-api":  "^0.1.0",
+                    "psr/log":  "^1.0 || ^2.0 || ^3.0",
+                    "symfony/http-foundation":  "^6.0 || ^7.0",
+                    "php":  ">=8.3"
+                },
+    "repositories":  [
+                         {
+                             "type":  "composer",
+                             "url":  "https://satis.anibalalvarez.com/"
+                         }
+                     ],
+    "autoload":  {
+                     "psr-4":  {
+                                   "Anibalealvarezs\\KlaviyoHubDriver\\":  "src/"
+                               }
+                 },
+    "minimum-stability":  "dev",
+    "require-dev":  {
+                        "fakerphp/faker":  "^1.23",
+                        "doctrine/instantiator":  "^1.5",
+                        "phpunit/phpunit":  "^9.6.20"
+                    },
+    "config":  {
+                   "platform":  {
+                                    "php":  "8.3.0"
+                                }
+               },
+    "prefer-stable":  true
 }
